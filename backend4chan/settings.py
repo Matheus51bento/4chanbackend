@@ -40,7 +40,20 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "drf_spectacular",
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Your Project API',
+    'DESCRIPTION': 'API documentation for your project.',
+    'VERSION': '1.0.0',
+}
+
 
 CHANNEL_LAYERS = {
     "default": {
@@ -76,7 +89,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "backend4chan.wsgi.application"
+# WSGI_APPLICATION = "backend4chan.wsgi.application"
 ASGI_APPLICATION = "backend4chan.asgi.application"
 
 # Database

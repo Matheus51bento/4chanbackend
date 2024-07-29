@@ -1,0 +1,56 @@
+openapi: 3.0.3
+info:
+  title: Your Project API
+  version: 1.0.0
+  description: API documentation for your project.
+paths:
+  /api/schema/:
+    get:
+      operationId: root_retrieve
+      description: WebSocket API for chat functionality.
+      summary: WebSocket Connection
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '101':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
