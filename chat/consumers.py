@@ -1,5 +1,6 @@
 import json
 from channels.generic.websocket import WebsocketConsumer
+from chat.models import Room
 from asgiref.sync import async_to_sync
 import random
 import string
@@ -8,6 +9,10 @@ import string
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+
+        if not Room.objects.filter(name=self.room_name).exists():
+            self.close()
+
         self.room_group_name = f"chat_{self.room_name}"
 
         async_to_sync(self.channel_layer.group_add)(
@@ -47,3 +52,29 @@ class ChatConsumer(WebsocketConsumer):
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name, {"type": "chat.message", "message": message}
         )
+
+
+class ChatListConsumer(WebsocketConsumer):
+    def connect(self):
+        self.accept()
+        async_to_sync(self.channel_layer.group_add)(
+            "allchats", self.channel_name
+        )
+
+        chats = Room.objects.all()
+        response = []
+        for chat in chats:
+            response.append({"room": chat.name})
+        self.send(text_data=json.dumps(response))
+
+    def chat_created(self, room_name):
+        self.send(text_data=json.dumps([{"room": room_name["room_name"]}]))
+
+    def disconnect(self, close_code):
+        async_to_sync(self.channel_layer.group_discard)(
+            "allchats", self.channel_name
+        )
+
+    def receive(self, text_data):
+        room_name = json.loads(text_data)["room_name"]
+        Room.objects.create(name=room_name)
