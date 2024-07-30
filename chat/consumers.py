@@ -4,7 +4,7 @@ from chat.models import Room
 from asgiref.sync import async_to_sync
 import random
 import string
-
+from datetime import datetime
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
@@ -31,16 +31,18 @@ class ChatConsumer(WebsocketConsumer):
         )
 
     def chat_message(self, message):
-
-        self.send(text_data=json.dumps({"username": self.name, "message": message}))
+        actual_date = str(datetime.now())
+        self.send(text_data=json.dumps({"username": self.name, "message": message, "date": actual_date}))
 
     def joined_chat(self, username):
         name = username["username"]
-        self.send(text_data=json.dumps({"joined": f"{name} has joined the chat"}))
+        actual_date = str(datetime.now())
+        self.send(text_data=json.dumps({"joined": f"{name} has joined the chat", "date": actual_date}))
     
     def left_chat(self, username):
         name = username["username"]
-        self.send(text_data=json.dumps({"left": f"{name} has left the chat"}))
+        actual_date = str(datetime.now())
+        self.send(text_data=json.dumps({"left": f"{name} has left the chat", "date": actual_date}))
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_send)(
@@ -73,7 +75,8 @@ class ChatListConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({"rooms":response}))
 
     def chat_created(self, room_name):
-        self.send(text_data=json.dumps({"room": room_name["room_name"]}))
+        actual_date = str(datetime.now())
+        self.send(text_data=json.dumps({"room": room_name["room_name"], "date": actual_date}))
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(
