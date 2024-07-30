@@ -22,9 +22,12 @@ class ChatConsumer(WebsocketConsumer):
 
         self.accept()
 
+        self.send(text_data=json.dumps({"user_info": f"{self.name}"}))
+
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
-            {"type": "joined.chat", "username": f"{self.name}"},
+            {
+                "type": "joined.chat", "username": f"{self.name}"},
         )
 
     def chat_message(self, message):
@@ -32,10 +35,12 @@ class ChatConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({"username": self.name, "message": message}))
 
     def joined_chat(self, username):
-        self.send(text_data=json.dumps({"message": f"{username} has joined the chat"}))
+        name = username["username"]
+        self.send(text_data=json.dumps({"joined": f"{name} has joined the chat"}))
     
     def left_chat(self, username):
-        self.send(text_data=json.dumps({"message": f"{username} has left the chat"}))
+        name = username["username"]
+        self.send(text_data=json.dumps({"left": f"{name} has left the chat"}))
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_send)(
@@ -65,10 +70,10 @@ class ChatListConsumer(WebsocketConsumer):
         response = []
         for chat in chats:
             response.append({"room": chat.name})
-        self.send(text_data=json.dumps(response))
+        self.send(text_data=json.dumps({"rooms":response}))
 
     def chat_created(self, room_name):
-        self.send(text_data=json.dumps([{"room": room_name["room_name"]}]))
+        self.send(text_data=json.dumps({"room": room_name["room_name"]}))
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(
