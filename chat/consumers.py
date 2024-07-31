@@ -5,6 +5,7 @@ from asgiref.sync import async_to_sync
 import random
 import string
 from datetime import datetime
+import pytz
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
@@ -31,17 +32,17 @@ class ChatConsumer(WebsocketConsumer):
         )
 
     def chat_message(self, message):
-        actual_date = str(datetime.now())
+        actual_date = str(datetime.now(tz=pytz.timezone('America/Fortaleza')))
         self.send(text_data=json.dumps({"username": message["username"], "message": message, "date": actual_date}))
 
     def joined_chat(self, username):
         name = username["username"]
-        actual_date = str(datetime.now())
+        actual_date = str(datetime.now(tz=pytz.timezone('America/Fortaleza')))
         self.send(text_data=json.dumps({"joined": f"{name} has joined the chat", "date": actual_date}))
     
     def left_chat(self, username):
         name = username["username"]
-        actual_date = str(datetime.now())
+        actual_date = str(datetime.now(tz=pytz.timezone('America/Fortaleza')))
         self.send(text_data=json.dumps({"left": f"{name} has left the chat", "date": actual_date}))
 
     def disconnect(self, close_code):
@@ -75,7 +76,7 @@ class ChatListConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({"rooms":response}))
 
     def chat_created(self, room_name):
-        actual_date = str(datetime.now())
+        actual_date = str(datetime.now(tz=pytz.timezone('America/Fortaleza')))
         self.send(text_data=json.dumps({"room": room_name["room_name"], "date": actual_date}))
 
     def disconnect(self, close_code):
